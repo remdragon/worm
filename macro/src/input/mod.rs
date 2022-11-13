@@ -10,19 +10,19 @@ pub struct Input<'a> {
 	pub ast: &'a syn::DeriveInput,
 	fields: Vec<Field<'a>>,
 	pub name: &'a syn::Ident,
-	pub name_sql: syn::Ident,
+	pub name_table: syn::Ident,
 }
 
 impl<'a> Input<'a> {
 	pub fn from_syn(ast: &'a syn::DeriveInput) -> Input {
 		let name = &ast.ident;
-		let name_sql = syn::Ident::new(format!("{}Sql", name).as_str(), name.span());
+		let name_table = syn::Ident::new(format!("{}Table", name).as_str(), name.span());
 		let fields = Field::from_derive_input(ast);
 		
 		Input {
 			ast,
 			name,
-			name_sql,
+			name_table,
 			fields,
 		}
 	}

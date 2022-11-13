@@ -17,7 +17,7 @@ pub fn derive(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 	let impl_select_one_wrapper = impl_filter_wrapper(&input, "SelectOne", &input.name.span());
 	let impl_count_wrapper = impl_filter_wrapper(&input, "Count", &input.name.span());
 	let impl_delete_wrapper = impl_filter_wrapper(&input, "Delete", &input.name.span());
-	let impl_struct_sql = impl_struct_sql(&input);
+	let impl_struct_table = impl_struct_table(&input);
 	let impl_constructor = impl_constructor(&input);
 	let impl_select_all = impl_select_all(&input);
 	let impl_select_one = impl_select_one(&input);
@@ -37,7 +37,7 @@ pub fn derive(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 		#impl_count
 		#impl_count_all
 		#impl_constructor
-		#impl_struct_sql
+		#impl_struct_table
 		#filter_struct
 		#select_struct
 		#impl_select_one_wrapper
@@ -61,19 +61,19 @@ fn impl_enum(_input: &Input) -> proc_macro2::TokenStream {
 	}
 }
 
-fn impl_struct_sql(input: &Input) -> proc_macro2::TokenStream {
-	let name_sql = &input.name_sql;
+fn impl_struct_table(input: &Input) -> proc_macro2::TokenStream {
+	let name_table = &input.name_table;
 	let doc = format!(
 		r#"
 The struct {} wraps around the connection to the SQL database - specified as part of the constructor -
 and manages the interaction between the software and the database
 "#,
-		name_sql
+		name_table
 	);
 	
 	quote::quote! {
 		#[doc = #doc]
-		pub struct #name_sql<'a> {
+		pub struct #name_table<'a> {
 			connection: SqlConnection<'a>,
 		}
 	}
@@ -81,7 +81,7 @@ and manages the interaction between the software and the database
 
 fn impl_constructor(input: &Input) -> proc_macro2::TokenStream {
 	let name = input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	let doc = format!(
 		r#"
 Construct a SQL connector to manipulate struct of type {} to an SQLite database using the rusqlite wrapper
@@ -92,8 +92,8 @@ Construct a SQL connector to manipulate struct of type {} to an SQLite database 
 	quote::quote! {
 		#[doc = #doc]
 		impl #name {
-			pub fn from_rusqlite<'a>(conn: &'a rusqlite::Connection) -> #name_sql<'a> {
-				#name_sql { connection: SqlConnection::Rusqlite(conn) }
+			pub fn from_rusqlite<'a>(conn: &'a rusqlite::Connection) -> #name_table<'a> {
+				#name_table { connection: SqlConnection::Rusqlite(conn) }
 			}
 		}
 	}
@@ -101,7 +101,7 @@ Construct a SQL connector to manipulate struct of type {} to an SQLite database 
 
 fn impl_delete_all(input: &Input) -> proc_macro2::TokenStream {
 	let name = &input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	
 	quote::quote! {
 		impl #name {
@@ -110,7 +110,7 @@ fn impl_delete_all(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn delete_all(&self) -> Result<(), Box<dyn std::error::Error>> {
 				self.delete(DeleteBuilder::default().build())
 			}
@@ -120,7 +120,7 @@ fn impl_delete_all(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_delete(input: &Input) -> proc_macro2::TokenStream {
 	let name = &input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	let statement = format!("DELETE FROM {}", input.get_table_name());
 	
 	quote::quote! {
@@ -134,7 +134,7 @@ fn impl_delete(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn delete(&self, delete: Delete) -> Result<(), Box<dyn std::error::Error>> {
 				match self.connection {
 					SqlConnection::Rusqlite(conn) => {
@@ -150,7 +150,7 @@ fn impl_delete(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_update(input: &Input) -> proc_macro2::TokenStream {
 	let name = input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	let fields_named = &input.fields();
 	
 	let statement_to = format!(
@@ -209,7 +209,7 @@ fn impl_update(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn update_by_id(&self, obj: &#name) -> Result<(), Box<dyn std::error::Error>> {
 				match self.connection {
 					SqlConnection::Rusqlite(conn) => {
@@ -233,7 +233,7 @@ fn impl_update(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_select_all(input: &Input) -> proc_macro2::TokenStream {
 	let name = input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	
 	quote::quote! {
 		impl #name {
@@ -242,7 +242,7 @@ fn impl_select_all(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn select_all(&self) -> Result<Vec<#name>, Box<dyn std::error::Error>> {
 				self.select(SelectBuilder::default().build())
 			}
@@ -252,10 +252,10 @@ fn impl_select_all(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_select_one(input: &Input) -> proc_macro2::TokenStream {
 	let name = input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	
 	quote::quote! {
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn select_one(&self, select_one: SelectOne) -> Result<Option<#name>, Box<dyn std::error::Error>> {
 				let r = self.select(select_one.into())?;
 				Ok(r.into_iter().nth(0))
@@ -266,7 +266,7 @@ fn impl_select_one(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_select(input: &Input) -> proc_macro2::TokenStream {
 	let name = input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	let fields_named = &input.fields();
 	
 	let statement = format!(
@@ -298,7 +298,7 @@ fn impl_select(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn select(&self, select: Select) -> Result<Vec<#name>, Box<dyn std::error::Error>> {
 				match self.connection {
 					SqlConnection::Rusqlite(conn) => {
@@ -316,7 +316,7 @@ fn impl_select(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_count_all(input: &Input) -> proc_macro2::TokenStream {
 	let name = &input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	quote::quote! {
 		impl #name {
 			pub fn count_all_statement() -> String {
@@ -324,7 +324,7 @@ fn impl_count_all(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn count_all(&self) -> Result<usize, Box<dyn std::error::Error>> {
 			  self.count(CountBuilder::default().build())
 			}
@@ -334,7 +334,7 @@ fn impl_count_all(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_count(input: &Input) -> proc_macro2::TokenStream {
 	let name = &input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	let fields_named = &input.fields();
 	
 	let statement = format!(
@@ -354,7 +354,7 @@ fn impl_count(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn count(&self, count: Count) -> Result<usize, Box<dyn std::error::Error>> {
 				match self.connection {
 					SqlConnection::Rusqlite(conn) => {
@@ -375,7 +375,7 @@ fn impl_count(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_insert(input: &Input) -> proc_macro2::TokenStream {
 	let name = input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	
 	let statement = format!(
 		"INSERT INTO {} ({}) VALUES ({})",
@@ -399,7 +399,7 @@ fn impl_insert(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn insert(&self, i: &#name) -> Result<(), Box<dyn std::error::Error>> {
 				match self.connection {
 					SqlConnection::Rusqlite(conn) => {
@@ -414,7 +414,7 @@ fn impl_insert(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_delete_table(input: &Input) -> proc_macro2::TokenStream {
 	let name = &input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	let statement = format!("DROP TABLE {}", input.get_table_name());
 	
 	quote::quote! {
@@ -424,7 +424,7 @@ fn impl_delete_table(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql<'a> {
+		impl<'a> #name_table<'a> {
 			pub fn delete_table(&self) -> Result<(), Box<dyn std::error::Error>> {
 				match self.connection {
 					SqlConnection::Rusqlite(conn) => {
@@ -439,7 +439,7 @@ fn impl_delete_table(input: &Input) -> proc_macro2::TokenStream {
 
 fn impl_create_table(input: &Input) -> proc_macro2::TokenStream {
 	let name = input.name;
-	let name_sql = &input.name_sql;
+	let name_table = &input.name_table;
 	
 	let fields_statement = collect_join(
 		input.fields_iter().map(|field| {
@@ -479,7 +479,7 @@ fn impl_create_table(input: &Input) -> proc_macro2::TokenStream {
 			}
 		}
 		
-		impl<'a> #name_sql <'a> {
+		impl<'a> #name_table <'a> {
 			pub fn create_table(&self) -> Result<(), Box<dyn std::error::Error>> {
 				match self.connection {
 					SqlConnection::Rusqlite(conn) => {
