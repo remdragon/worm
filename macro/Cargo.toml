@@ -9,6 +9,7 @@ repository = ""
 
 [lib]
 proc-macro = true
+path = "src/lib_worm_macro.rs"
 
 [dependencies]
 syn          = "1"
