@@ -1,5 +1,5 @@
 [package]
-name = "worm-rust-macro"
+name = "worm-macro"
 version = "0.1.0"
 edition = "2021"
 description = "A Rust macro that implements methods that wraps common SQL statements"

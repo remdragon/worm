@@ -11,9 +11,9 @@
 //! ## Add the macro to your structure
 //!
 //! ```rust
-//! use worm_rust::WormTable;
+//! use worm::Table;
 //!
-//! #[derive(WormTable)]
+//! #[derive(Table)]
 //! struct Person {
 //!   #[text(primary = true)]
 //!   id: u32,
@@ -28,9 +28,9 @@
 //!
 //! ```rust
 //! use rusqlite;
-//! use worm_rust::WormTable;
+//! use worm::Table;
 //!
-//! #[derive(WormTable)]
+//! #[derive(Table)]
 //! struct Person {
 //!   #[integer(primary = true)]
 //!   id: u32,
@@ -100,7 +100,7 @@
 //!
 //! ```
 
-pub use worm_rust_macro::*;
+pub use worm_macro::*;
 
 #[allow(dead_code)]
 fn nothing_here() {

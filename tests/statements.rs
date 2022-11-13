@@ -1,6 +1,6 @@
-use worm_rust::WormTable;
+use worm;
 
-#[derive(WormTable)]
+#[derive(worm::Table)]
 pub struct Users {
 	#[integer(primary = true)]
 	user_id: u32,

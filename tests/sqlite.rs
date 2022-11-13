@@ -1,7 +1,7 @@
 use std::error::Error;
-use worm_rust::WormTable;
+use worm;
 
-#[derive(WormTable, Clone)]
+#[derive(worm::Table, Clone)]
 pub struct Users {
 	#[integer(primary = true)]
 	user_id: u32,

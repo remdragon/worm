@@ -40,10 +40,10 @@ impl<'a> Input<'a> {
 		match &self.ast.data {
 			syn::Data::Struct(_) => {}
 			syn::Data::Enum(_) => {
-				abort!(&self.ast, "WormTable is not supported for enum");
+				abort!(&self.ast, "worm::Table is not supported for enum");
 			}
 			syn::Data::Union(_) => {
-				abort!(&self.ast, "WormTable is not supported for union");
+				abort!(&self.ast, "worm::Table is not supported for union");
 			}
 		};
 		
@@ -51,14 +51,14 @@ impl<'a> Input<'a> {
 		match Field::get_fields(self.ast).expect("Unable to retrieve fields") {
 			field @ syn::Fields::Named(fields_named) => {
 				if fields_named.named.is_empty() {
-					abort!(field, "WormTable does not support struct with no fields");
+					abort!(field, "worm::Table does not support struct with no fields");
 				}
 			}
 			field @ syn::Fields::Unnamed(_) => {
-				abort!(field, "WormTable does not support unnamed field");
+				abort!(field, "worm::Table does not support unnamed field");
 			}
 			field @ syn::Fields::Unit => {
-				abort!(field, "WormTable does not support unit");
+				abort!(field, "worm::Table does not support unit");
 			}
 		}
 	}

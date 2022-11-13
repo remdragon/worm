@@ -9,16 +9,16 @@ worm-rust = "0.1.0"
 ## Add the macro to your structure
 
 ```rust
-use worm_rust::WormTable;
+use worm::Table;
 
-#[derive(WormTable)]
+#[derive(Table)]
 struct Person {
-  #[text(primary = true)]
-  id: u32,
-  #[text(null = true)]
-  name: String,
-  #[integer()]
-  age: u32,
+	#[text(primary = true)]
+	id: u32,
+	#[text(null = true)]
+	name: String,
+	#[integer()]
+	age: u32,
 }
 ```
 
@@ -26,16 +26,16 @@ struct Person {
 
 ```rust
 use rusqlite;
-use worm_rust::WormTable;
+use worm::Table;
 
-#[derive(WormTable)]
+#[derive(Table)]
 struct Person {
-  #[integer(primary = true)]
-  id: u32,
-  #[text(null = true)]
-  name: String,
-  #[integer()]
-  age: u32,
+	#[integer(primary = true)]
+	id: u32,
+	#[text(null = true)]
+	name: String,
+	#[integer()]
+	age: u32,
 }
 
 
@@ -84,7 +84,7 @@ assert!(p.age == 28);
 // Delete John
 let filter = Filter::And(Box::new(Filter::NameEqual("John".to_string())), Box::new(Filter::AgeEqual(24)));
 let john: Person = person_table.select(filter.into()).unwrap()
-            .into_iter().nth(0).unwrap();
+	.into_iter().nth(0).unwrap();
 person_table.delete(john.into()).unwrap();
 
 let filter = Filter::NameEqual("John".to_string());
@@ -101,5 +101,4 @@ assert!(persons[0].name.eq("Jim"));
 
 Export the expanded code into a combined file:
 
-    cargo expand --test users > main.rs
-    
+	cargo expand --test users > main.rs

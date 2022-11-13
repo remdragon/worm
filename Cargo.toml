@@ -1,5 +1,5 @@
 [package]
-name = "worm-rust"
+name = "worm"
 version = "0.1.0"
 edition = "2021"
 description = "A Rust macro that implements methods that wraps common SQL statements"
@@ -9,7 +9,7 @@ repository = ""
 
 [dependencies]
 rusqlite = { version = "0.28.0", features = ["bundled"], optional = true }
-worm-rust-macro = { version = "0.1.0", path = "macro" }
+worm-macro = { version = "0.1.0", path = "macro" }
 
 [features]
 rusqlite = [ "dep:rusqlite" ]
