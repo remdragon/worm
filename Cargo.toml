@@ -1,0 +1,17 @@
+[package]
+name = "worm-rust"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust macro that implements methods that wraps common SQL statements"
+repository = ""
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+worm-rust-macro = { version = "0.1.0", path = "macro" }
+
+[dev-dependencies]
+rusqlite = "0.28.0"
+
+[workspace]
+members = ["macro"]
