@@ -16,6 +16,6 @@ use syn::DeriveInput;
 #[proc_macro_derive(WormTable, attributes(integer, varchar, text))]
 #[proc_macro_error]
 pub fn worm_table(input: TokenStream) -> proc_macro::TokenStream {
-    let derive_input = parse_macro_input!(input as DeriveInput);
-    worm_table::derive(&derive_input).into()
+	let derive_input = parse_macro_input!(input as DeriveInput);
+	worm_table::derive(&derive_input).into()
 }
